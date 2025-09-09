@@ -81,6 +81,16 @@
                     return;
                 }
 
+                if (thigh > 40) {
+                    showError("Thigh measurement is greater than 40cm. No Trexo device is suitable for this measurement.");
+                    return;
+                }
+
+                if (shin < 20) {
+                    showError("Shin measurement is less than 20cm. No Trexo device is suitable for this measurement.");
+                    return;
+                }
+
                 // Clear previous results
                 resultsContainer.innerHTML = '';
                 let matchingSizes = [];
@@ -92,9 +102,9 @@
                         isMatch: (t, s) => (t >= 16 && t <= 21) && (s >= 21 && s <= 30),
                         components: [
                             "Medium upper dynamic frame",
-                            "Medium base frame",
-                            "Medium MPS",
+                            "Medium regular or Utility base",
                             "Small chest strap",
+                            "Medium MPS",
                             "Guide rod"
                         ]
                     },
@@ -103,9 +113,9 @@
                         isMatch: (t, s) => (t >= 19 && t <= 25) && (s >= 23 && s <= 30),
                         components: [
                             "Medium upper dynamic frame",
-                            "Medium base frame",
-                            "Medium MPS",
+                            "Medium regular or Utility base",
                             "Small chest strap",
+                            "Medium MPS",
                             "Guide rod"
                         ]
                     },
@@ -113,11 +123,11 @@
                         name: "LARGE",
                         isMatch: (t, s) => (t >= 25 && t <= 34) && (s >= 30 && s <= 42),
                         components: [
-                            "Medium MPS",
-                            "Large Dynamic Upper Frame",
-                            "Large Base Frame",
-                            "Medium Chest Strap",
-                            "Guide Rod"
+                            "large upper dynamic frame",
+                            "large regular or utility base",
+                            "medium or large MPS",
+                            "medium chest strap",
+                            "guide rod"
                         ]
                     },
                     {
@@ -134,11 +144,11 @@
                         name: "MULB",
                         isMatch: (t, s) => (t + s) >= 45 && (t + s) <= 54 && t >= 20,
                         components: [
-                            "Medium MPS",
-                            "Medium dynamic upper frame",
-                            "Large lower frame",
-                            "Small chest strap",
-                            "Guide rod"
+                            "medium upper dynamic frame",
+                            "large regular or utility base",
+                            "medium MPS",
+                            "medium chest strap",
+                            "guide rod"
                         ]
                     }
                 ];
