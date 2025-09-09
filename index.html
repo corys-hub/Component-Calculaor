@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Component Calculator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .input-group {
+            @apply flex flex-col md:flex-row gap-2 items-center;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-lg">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Component Calculator</h1>
+
+        <!-- Thigh Measurement Input -->
+        <div class="mb-4">
+            <label for="thighMeasurement" class="block text-sm font-medium text-gray-700 mb-2">Thigh Measurement (in cm):</label>
+            <input type="number" id="thighMeasurement" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., 50" min="0">
+        </div>
+
+        <!-- Shin Measurement Input -->
+        <div class="mb-6">
+            <label for="shinMeasurement" class="block text-sm font-medium text-gray-700 mb-2">Shin Measurement (in cm):</label>
+            <input type="number" id="shinMeasurement" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., 40" min="0">
+        </div>
+
+        <!-- Calculate Button -->
+        <button id="calculateBtn" class="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors duration-200 shadow-md focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50">
+            Calculate
+        </button>
+
+        <!-- Results Section -->
+        <div id="results" class="mt-8 hidden">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Results:</h2>
+            <div id="results-container" class="bg-gray-50 p-4 rounded-lg">
+                <!-- Results will be displayed here -->
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="hidden mt-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg" role="alert">
+            <p class="font-bold">Error:</p>
+            <p id="errorText"></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const thighMeasurementInput = document.getElementById('thighMeasurement');
+            const shinMeasurementInput = document.getElementById('shinMeasurement');
+            const calculateBtn = document.getElementById('calculateBtn');
+            const resultsContainer = document.getElementById('results-container');
+            const resultsSection = document.getElementById('results');
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+
+            calculateBtn.addEventListener('click', calculateMeasurements);
+
+            function calculateMeasurements() {
+                hideResults();
+                hideError();
+
+                const thigh = parseFloat(thighMeasurementInput.value);
+                const shin = parseFloat(shinMeasurementInput.value);
+                const totalMeasurement = thigh + shin;
+
+                if (isNaN(thigh) || thigh <= 0 || isNaN(shin) || shin <= 0) {
+                    showError("Please enter valid measurements for both the thigh and shin. Values must be greater than 0.");
+                    return;
+                }
+
+                // Clear previous results
+                resultsContainer.innerHTML = '';
+                let matchingSizes = [];
+
+                // Define size criteria and components
+                const sizes = [
+                    {
+                        name: "SMALL",
+                        isMatch: (t, s) => (t >= 16 && t <= 21) && (s >= 21 && s <= 30),
+                        components: [
+                            "Medium upper dynamic frame",
+                            "Medium base frame",
+                            "Medium MPS",
+                            "Small chest strap",
+                            "Guide rod"
+                        ]
+                    },
+                    {
+                        name: "MEDIUM",
+                        isMatch: (t, s) => (t >= 19 && t <= 25) && (s >= 23 && s <= 30),
+                        components: [
+                            "Medium upper dynamic frame",
+                            "Medium base frame",
+                            "Medium MPS",
+                            "Small chest strap",
+                            "Guide rod"
+                        ]
+                    },
+                    {
+                        name: "LARGE",
+                        isMatch: (t, s) => (t >= 25 && t <= 34) && (s >= 30 && s <= 42),
+                        components: [
+                            "Medium MPS",
+                            "Large Dynamic Upper Frame",
+                            "Large Base Frame",
+                            "Medium Chest Strap",
+                            "Guide Rod"
+                        ]
+                    },
+                    {
+                        name: "XL",
+                        isMatch: (t, s) => (t >= 29 && t <= 39) && (s >= 33 && s <= 50),
+                        components: [
+                            "Large MPS",
+                            "XL upper dynamic frame",
+                            "XL base frame",
+                            "Large chest strap"
+                        ]
+                    },
+                    {
+                        name: "MULB",
+                        isMatch: (t, s) => (t + s) >= 45 && (t + s) <= 54 && t >= 20,
+                        components: [
+                            "Medium MPS",
+                            "Medium dynamic upper frame",
+                            "Large lower frame",
+                            "Small chest strap",
+                            "Guide rod"
+                        ]
+                    }
+                ];
+
+                // Check for all matching sizes
+                sizes.forEach(size => {
+                    if (size.isMatch(thigh, shin)) {
+                        matchingSizes.push(size);
+                    }
+                });
+
+                // Rule for Medium size based on sum with new shin condition
+                if (totalMeasurement >= 44 && totalMeasurement <= 55 && shin <= 29) {
+                    const mediumSize = sizes.find(s => s.name === "MEDIUM");
+                    if (mediumSize && !matchingSizes.some(s => s.name === "MEDIUM")) {
+                        matchingSizes.push(mediumSize);
+                    }
+                }
+
+                // Build the output based on the determined sizes
+                if (matchingSizes.length > 0) {
+                    const sizeNames = matchingSizes.map(size => size.name).join(', ');
+                    resultsContainer.innerHTML = `
+                        <p class="text-gray-900 font-medium mb-2">Based on the measurements, the patient can be fitted with the following Trexo device options:</p>
+                        <p class="text-gray-900 font-medium mb-4">Matching Trexo Device Sizes: <span class="font-bold text-blue-600">${sizeNames}</span></p>
+                    `;
+
+                    matchingSizes.forEach(size => {
+                        const componentsList = size.components.map(item => `<li>${item}</li>`).join('');
+                        resultsContainer.innerHTML += `
+                            <div class="mt-4 pt-4 border-t border-gray-200">
+                                <h3 class="text-lg font-semibold mb-2 text-gray-800">Components for Size ${size.name}:</h3>
+                                <ul class="list-disc list-inside text-gray-700">
+                                    ${componentsList}
+                                </ul>
+                            </div>
+                        `;
+                    });
+
+                } else {
+                    // Default output for measurements that don't match any size
+                    resultsContainer.innerHTML = `
+                        <p class="text-gray-900 font-medium mb-2">No matching Trexo device size found for the entered measurements.</p>
+                        <p class="text-gray-900 font-medium mt-4 pt-4 border-t-2 border-gray-200">The total combined measurement is <span class="font-bold text-blue-600">${totalMeasurement} cm</span>.</p>
+                    `;
+                }
+
+                showResults();
+            }
+
+            function showError(message) {
+                errorMessage.classList.remove('hidden');
+                errorText.textContent = message;
+            }
+
+            function hideError() {
+                errorMessage.classList.add('hidden');
+            }
+
+            function showResults() {
+                resultsSection.classList.remove('hidden');
+            }
+
+            function hideResults() {
+                resultsSection.classList.add('hidden');
+            }
+        });
+    </script>
+
+</body>
+</html>
